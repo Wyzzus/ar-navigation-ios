@@ -486,7 +486,6 @@ GameObject:
   - component: {fileID: 607396158}
   - component: {fileID: 607396157}
   - component: {fileID: 607396156}
-  - component: {fileID: 607396160}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -571,26 +570,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &607396160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 607396155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d476596b80404423ebbd1a125961856e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1060898619245028, guid: bd8146d74e981433fa30ed3ec520f704, type: 2}
-  Point: {fileID: 1288409649229380, guid: e42dfcf7b03d4459bb56e5ce7fcc2a2c, type: 2}
-  RoutePart: {fileID: 1895722561083280, guid: 14e0d795e0ea841b4a6e15158a14483a, type: 2}
-  Points: []
-  Surfs: []
-  empty: {fileID: 1079488719526688, guid: 395c7f2b8be82418cbc58a80d37cc133, type: 2}
-  currentPath: {fileID: 0}
-  DistanceBetweenPoints: 1
-  CanRecord: 0
 --- !u!1 &741096757
 GameObject:
   m_ObjectHideFlags: 0
@@ -831,7 +810,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 607396160}
+      - m_Target: {fileID: 0}
         m_MethodName: StartStopRecord
         m_Mode: 2
         m_Arguments:
@@ -954,7 +933,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 607396160}
+      - m_Target: {fileID: 0}
         m_MethodName: tmp
         m_Mode: 1
         m_Arguments:
