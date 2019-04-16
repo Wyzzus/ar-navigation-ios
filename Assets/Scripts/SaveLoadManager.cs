@@ -22,6 +22,7 @@ public class SaveLoadManager : MonoBehaviour {
 	public void Start()
 	{
         Folder = Application.persistentDataPath + "/saves";
+        System.Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes");
 	}
 
 	public void Save()
@@ -45,6 +46,11 @@ public class SaveLoadManager : MonoBehaviour {
         if(CurrentData == null)
         {
             CurrentData = new NavigationData();
+        }
+
+        if(CurrentData.NavFields.Count > 0)
+        {
+            CurrentData.NavFields.Clear();
         }
 
         NavigationFiled field = new NavigationFiled();

@@ -17,7 +17,7 @@ public class NavigationManager : MonoBehaviour
 
     #endregion
 
-    //public NavigationFiled LoadedField;
+    public NavigationFiled LoadedField;
     public List<Transform> WorkField;
     public List<TargetScript> WorkTargets;
 
@@ -66,6 +66,7 @@ public class NavigationManager : MonoBehaviour
 	public void Start()
 	{
         Camera.main.cullingMask = NormalMask;
+        //LoadField();
         //GetPath(new Vector3(100, 10, 0));
 	}
 
@@ -73,6 +74,52 @@ public class NavigationManager : MonoBehaviour
     {
         //SaveLoadManager.instance.AddField("Test", WorkField, WorkTargets);
         SaveLoadManager.instance.Load();
+    }
+
+    public void SaveField()
+    {
+        SaveLoadManager.instance.AddField("Test", WorkField, WorkTargets);
+        SaveLoadManager.instance.Save();
+    }
+
+    public void LoadField()
+    {
+        SaveLoadManager.instance.Load();
+        WorkField.Clear();
+
+        foreach (Transform child in Anchor.PointsRoot)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if(SaveLoadManager.instance.CurrentData != null)
+        {
+            LoadedField = SaveLoadManager.instance.CurrentData.NavFields[0];
+            Debug.Log(LoadedField.Name);
+            for (int i = 0; i < LoadedField.Parts.Count; i++)
+            {
+                GameObject part = Instantiate<GameObject>(NavigationManager.instance.GetFieldPart(), Anchor.PointsRoot);
+                part.transform.localPosition = LoadedField.Parts[i].position.GetRegularVector3();
+                part.transform.localRotation = Quaternion.Euler(LoadedField.Parts[i].rotation.GetRegularVector3());
+                part.transform.localScale = Vector3.one * LoadedField.Parts[i].shoulderScale;
+                WorkField.Add(part.transform);
+            }
+
+            Anchor.GenerateNavMesh();
+
+            for (int i = 0; i < LoadedField.Targets.Count; i++)
+            {
+                GameObject part = Instantiate<GameObject>(TargetPrefab, Anchor.TargetsRoot);
+                part.transform.localPosition = LoadedField.Targets[i].position.GetRegularVector3();
+                TargetScript ts = part.GetComponent<TargetScript>();
+                ts.position = ts.transform.position;
+                ts.Name = LoadedField.Targets[i].Name;
+                ts.Description = LoadedField.Targets[i].Description;
+                ts.ImageUrl = LoadedField.Targets[i].ImageUrl;
+                ts.SetupTarget();
+                WorkTargets.Add(ts);
+            }
+        }
     }
 
 	public void Update()
