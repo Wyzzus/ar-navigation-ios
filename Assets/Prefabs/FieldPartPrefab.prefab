@@ -55,6 +55,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4012607794205972}
   - component: {fileID: 114773746725964112}
+  - component: {fileID: 114900825666439940}
   m_Layer: 0
   m_Name: FieldPartPrefab
   m_TagString: Untagged
@@ -240,3 +241,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Shoulder: {fileID: 4445153342022442}
+--- !u!114 &114900825666439940
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1696327112519688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 697333272, guid: bab6fa851cf5a1a4bba3cec5f191cb8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mTrackableName: 
+  mPreserveChildSize: 0
+  mInitializedInEditor: 0
+  mSelectedStageType: 1
+  mPlaneReference: {fileID: 0}
+  mMidAirReference: {fileID: 0}

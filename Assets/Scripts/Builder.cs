@@ -10,6 +10,8 @@ public class Builder : MonoBehaviour
     public Vector3 destination;
     public Vector3 lastPoint;
     public GameObject PointerPrefab;
+    public GameObject FinishPrefab;
+    public GameObject FinishInstance;
     public float delta;
 
     // Use this for initialization
@@ -17,19 +19,21 @@ public class Builder : MonoBehaviour
     {
         lastPoint = Camera.main.transform.position;
         transform.parent = NavigationManager.instance.Path.transform;
+        FinishInstance = Instantiate<GameObject>(FinishPrefab, NavigationManager.instance.Path.transform);
+        FinishInstance.transform.position = destination;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Vector3.Distance(transform.position, Camera.main.transform.position) < 4f)
+        //if (Vector3.Distance(transform.position, Camera.main.transform.position) < 4f)
         {
             Me.destination = destination;
         }
-        else
+        /*else
         {
             Me.ResetPath();
-        }
+        }*/
 
         if(Vector3.Distance(transform.position, lastPoint) > delta)
         {
@@ -37,6 +41,11 @@ public class Builder : MonoBehaviour
             clone.transform.parent = NavigationManager.instance.Path.transform;
             clone.transform.LookAt(lastPoint);
             lastPoint = transform.position;
+        }
+
+        if(FinishInstance)
+        {
+            FinishInstance.transform.rotation = Camera.main.transform.rotation;
         }
 		
 	}

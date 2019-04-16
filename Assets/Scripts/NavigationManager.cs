@@ -40,6 +40,7 @@ public class NavigationManager : MonoBehaviour
     public GameObject EmptyObject;
     public GameObject Path;
     public GameObject RoutePartPrefab;
+    public GameObject CrossPrefab;
 
     public bool CanRecord;
 
@@ -58,6 +59,7 @@ public class NavigationManager : MonoBehaviour
     public GameObject RoutesDialog;
     public GameObject RouteButtonPrefab;
     public GameObject BuilderPrefab;
+    public Button CrossButton;
 
     public GameObject GetFieldPart()
     {
@@ -183,7 +185,7 @@ public class NavigationManager : MonoBehaviour
 	public void Update()
     {
         ButtonManagement();
-        TrackedImage = GameObject.FindGameObjectWithTag("ImageAnchor");
+        //TrackedImage = GameObject.FindGameObjectWithTag("ImageAnchor");
 
         if (TrackedImage.GetComponent<MeshRenderer>().enabled)
         {
@@ -286,6 +288,10 @@ public class NavigationManager : MonoBehaviour
         obj.SetActive(!obj.activeSelf);
     }
 
+    public void AddCross()
+    {
+        SetCross(Agent.position);
+    }
 
     public void StartTargetDialog()
     {
@@ -316,11 +322,13 @@ public class NavigationManager : MonoBehaviour
         {
             RecordButton.interactable = true;
             AddButton.interactable = true;
+            CrossButton.interactable = true;
         }
         else
         {
             RecordButton.interactable = false;
             AddButton.interactable = false;
+            CrossButton.interactable = false;
         }
     }
 
@@ -409,6 +417,14 @@ public class NavigationManager : MonoBehaviour
         clone.transform.LookAt(to);
         //clone.transform.localScale = new Vector3(1, 1, Vector3.Distance(position, to));
         clone.GetComponent<PartScript>().SetupPart(Vector3.Distance(position, to));
+        WorkField.Add(clone.transform);
+        clone.transform.parent = Anchor.PointsRoot;
+    }
+
+    public void SetCross(Vector3 position)
+    {
+        GameObject clone = Instantiate<GameObject>(CrossPrefab, position, Quaternion.identity);
+        clone.transform.position = new Vector3(position.x, -0.5f, position.z);
         WorkField.Add(clone.transform);
         clone.transform.parent = Anchor.PointsRoot;
     }

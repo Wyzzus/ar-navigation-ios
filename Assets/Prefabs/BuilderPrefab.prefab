@@ -57,6 +57,9 @@ MonoBehaviour:
   lastPoint: {x: 0, y: 0, z: 0}
   PointerPrefab: {fileID: 1868547328480424, guid: 02329f81d431f419e95a2d76372807da,
     type: 2}
+  FinishPrefab: {fileID: 1397172901244344, guid: 01a4db6e9cb6f4bfea38403c2d7af31f,
+    type: 2}
+  FinishInstance: {fileID: 0}
   delta: 0.2
 --- !u!195 &195984255008679432
 NavMeshAgent:
