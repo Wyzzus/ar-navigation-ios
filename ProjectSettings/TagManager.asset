@@ -4,8 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - SafeNet
   - Anchor
+  - ImageAnchor
   layers:
   - Default
   - TransparentFX
@@ -17,9 +17,9 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
+  - ARKitPlane
+  - DebugLayer
+  - NonNavMesh
   - 
   - 
   - 

@@ -6,10 +6,9 @@ public class PartScript : MonoBehaviour
 {
     public Transform Shoulder;
 
-
-    public void SetupPart()
+	public void SetupPart(float size)
     {
-
+        Shoulder.localScale = new Vector3(Shoulder.localScale.x, Shoulder.localScale.y, size);
     }
 
 }

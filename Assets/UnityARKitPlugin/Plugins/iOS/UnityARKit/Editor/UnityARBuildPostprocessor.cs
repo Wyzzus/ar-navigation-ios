@@ -15,6 +15,7 @@ using System;
 public class UnityARBuildPostprocessor
 {
     static List<ARReferenceImagesSet> imageSets = new List<ARReferenceImagesSet>();
+	static List<ARReferenceObjectsSetAsset> objectSets = new List<ARReferenceObjectsSetAsset>();
     // Build postprocessor. Currently only needed on:
     // - iOS: no dynamic libraries, so plugin source files have to be copied into Xcode project
     [PostProcessBuild]
@@ -37,6 +38,14 @@ public class UnityARBuildPostprocessor
                 imageSets.Add(ar);
             }
         }
+
+		foreach (ARReferenceObjectsSetAsset ar in UnityEngine.Resources.FindObjectsOfTypeAll<ARReferenceObjectsSetAsset>())
+		{
+			if (!objectSets.Contains(ar))
+			{
+				objectSets.Add(ar);
+			}
+		}
 
     }
 
@@ -96,11 +105,11 @@ public class UnityARBuildPostprocessor
 
 		ARResourceContents resourceContents = new ARResourceContents ();
 		resourceContents.info = new ARResourceInfo ();
-		resourceContents.info.author = "xcode";
+		resourceContents.info.author = "unity";
 		resourceContents.info.version = 1;
 
-		resourceContents.images = new ARResourceImage[1];
-		resourceContents.images [0] = new ARResourceImage ();
+		resourceContents.images = new ARResourceFilename[1];
+		resourceContents.images [0] = new ARResourceFilename ();
 		resourceContents.images [0].idiom = "universal";
 
 		resourceContents.properties = new ARResourceProperties ();
@@ -133,7 +142,7 @@ public class UnityARBuildPostprocessor
 		List<ARReferenceImage> processedImages = new List<ARReferenceImage> ();
 		ARResourceGroupContents groupContents = new ARResourceGroupContents();
 		groupContents.info = new ARResourceGroupInfo ();
-		groupContents.info.author = "xcode";
+		groupContents.info.author = "unity";
 		groupContents.info.version = 1;
 		string folderToCreate = "Unity-iPhone/Images.xcassets/" + aris.resourceGroupName + ".arresourcegroup";
 		string folderFullPath = Path.Combine (pathToBuiltProject, folderToCreate);
@@ -157,6 +166,135 @@ public class UnityARBuildPostprocessor
 		File.WriteAllText (contentsJsonPath, JsonUtility.ToJson (groupContents, true));
 		project.AddFile (contentsJsonPath, Path.Combine (folderToCreate, "Contents.json"));
 	}
+
+	static void AddReferenceObjectAssetToStreamingAssets(ARReferenceObjectAsset arro, string parentFolderFullPath, string projectRelativePath)
+	{
+
+		ARReferenceObjectResourceContents resourceContents = new ARReferenceObjectResourceContents ();
+		resourceContents.info = new ARResourceInfo ();
+		resourceContents.info.author = "unity";
+		resourceContents.info.version = 1;
+
+		resourceContents.objects = new ARResourceFilename[1];
+		resourceContents.objects [0] = new ARResourceFilename ();
+		resourceContents.objects [0].idiom = "universal";
+
+		resourceContents.referenceObjectName = arro.objectName;
+
+		//add folder for reference image
+		string folderToCreate = arro.objectName + ".arreferenceobject";
+		string folderFullPath = Path.Combine (parentFolderFullPath, folderToCreate);
+		string projectRelativeFolder = Path.Combine (projectRelativePath, folderToCreate);
+		Directory.CreateDirectory (folderFullPath);
+
+		//copy file from refobject asset
+		string objectPath = AssetDatabase.GetAssetPath(arro.referenceObject);
+		string objectFilename = Path.GetFileName (objectPath);
+		var dstPath = Path.Combine(folderFullPath, objectFilename);
+		File.Copy(objectPath, dstPath, true);
+		resourceContents.objects [0].filename = objectFilename;
+
+		//add contents.json file
+		string contentsJsonPath = Path.Combine(folderFullPath, "Contents.json");
+		File.WriteAllText (contentsJsonPath, JsonUtility.ToJson (resourceContents, true));
+	}
+
+	static void AddReferenceObjectsSetAssetToStreamingAssets(ARReferenceObjectsSetAsset aros, string pathToBuiltProject)
+	{
+		List<ARReferenceObjectAsset> processedObjects = new List<ARReferenceObjectAsset> ();
+		ARResourceGroupContents groupContents = new ARResourceGroupContents();
+		groupContents.info = new ARResourceGroupInfo ();
+		groupContents.info.author = "xcode";
+		groupContents.info.version = 1;
+		//On iOS, StreamingAssets end up at /Data/Raw
+		string folderToCreate = "Data/Raw/ARReferenceObjects/" + aros.resourceGroupName + ".arresourcegroup";
+		string folderFullPath = Path.Combine (pathToBuiltProject, folderToCreate);
+		Directory.CreateDirectory (folderFullPath);
+		foreach (ARReferenceObjectAsset arro in aros.referenceObjectAssets) {
+			if (!processedObjects.Contains (arro)) {
+				processedObjects.Add (arro); //get rid of dupes
+				AddReferenceObjectAssetToStreamingAssets(arro, folderFullPath, folderToCreate);
+			}
+		}
+
+		groupContents.resources = new ARResourceGroupResource[processedObjects.Count];
+		int index = 0;
+		foreach (ARReferenceObjectAsset arro in processedObjects) {
+			groupContents.resources [index] = new ARResourceGroupResource ();
+			groupContents.resources [index].filename = arro.objectName + ".arreferenceobject";
+			index++;
+		}
+		string contentsJsonPath = Path.Combine(folderFullPath, "Contents.json");
+		File.WriteAllText (contentsJsonPath, JsonUtility.ToJson (groupContents, true));
+	}
+
+
+	#if ARREFERENCEOBJECT_XCODE_ASSET_CATALOG
+	static void AddReferenceObjectAssetToResourceGroup(ARReferenceObjectAsset arro, string parentFolderFullPath, string projectRelativePath, PBXProject project)
+	{
+
+		ARReferenceObjectResourceContents resourceContents = new ARReferenceObjectResourceContents ();
+		resourceContents.info = new ARResourceInfo ();
+		resourceContents.info.author = "unity";
+		resourceContents.info.version = 1;
+
+		resourceContents.objects = new ARResourceFilename[1];
+		resourceContents.objects [0] = new ARResourceFilename ();
+		resourceContents.objects [0].idiom = "universal";
+
+		//add folder for reference image
+		string folderToCreate = arro.objectName + ".arreferenceobject";
+		string folderFullPath = Path.Combine (parentFolderFullPath, folderToCreate);
+		string projectRelativeFolder = Path.Combine (projectRelativePath, folderToCreate);
+		Directory.CreateDirectory (folderFullPath);
+		project.AddFolderReference (folderFullPath, projectRelativeFolder);
+
+		//copy file from texture asset
+		string objectPath = AssetDatabase.GetAssetPath(arro.referenceObject);
+		string objectFilename = Path.GetFileName (objectPath);
+		var dstPath = Path.Combine(folderFullPath, objectFilename);
+		File.Copy(objectPath, dstPath, true);
+		project.AddFile (dstPath, Path.Combine (projectRelativeFolder, objectFilename));
+		resourceContents.objects [0].filename = objectFilename;
+
+		//add contents.json file
+		string contentsJsonPath = Path.Combine(folderFullPath, "Contents.json");
+		File.WriteAllText (contentsJsonPath, JsonUtility.ToJson (resourceContents, true));
+		project.AddFile (contentsJsonPath, Path.Combine (projectRelativeFolder, "Contents.json"));
+
+	}
+
+	static void AddReferenceObjectsSetAssetToAssetCatalog(ARReferenceObjectsSetAsset aros, string pathToBuiltProject, PBXProject project)
+	{
+		List<ARReferenceObjectAsset> processedObjects = new List<ARReferenceObjectAsset> ();
+		ARResourceGroupContents groupContents = new ARResourceGroupContents();
+		groupContents.info = new ARResourceGroupInfo ();
+		groupContents.info.author = "xcode";
+		groupContents.info.version = 1;
+		string folderToCreate = "Unity-iPhone/Images.xcassets/" + aros.resourceGroupName + ".arresourcegroup";
+		string folderFullPath = Path.Combine (pathToBuiltProject, folderToCreate);
+		Directory.CreateDirectory (folderFullPath);
+		project.AddFolderReference (folderFullPath, folderToCreate);
+		foreach (ARReferenceObjectAsset arro in aros.referenceObjectAssets) {
+			if (!processedObjects.Contains (arro)) {
+				processedObjects.Add (arro); //get rid of dupes
+				AddReferenceObjectAssetToResourceGroup(arro, folderFullPath, folderToCreate, project);
+			}
+		}
+
+		groupContents.resources = new ARResourceGroupResource[processedObjects.Count];
+		int index = 0;
+		foreach (ARReferenceObjectAsset arro in processedObjects) {
+			groupContents.resources [index] = new ARResourceGroupResource ();
+			groupContents.resources [index].filename = arro.objectName + ".arreferenceobject";
+			index++;
+		}
+		string contentsJsonPath = Path.Combine(folderFullPath, "Contents.json");
+		File.WriteAllText (contentsJsonPath, JsonUtility.ToJson (groupContents, true));
+		project.AddFile (contentsJsonPath, Path.Combine (folderToCreate, "Contents.json"));
+	}
+	#endif //ARREFERENCEOBJECT_XCODE_ASSET_CATALOG
+
 #endif //UNITY_IOS
 
 	private static void OnPostprocessBuildIOS(string pathToBuiltProject)
@@ -195,11 +333,20 @@ public class UnityARBuildPostprocessor
 			// Add "arkit" plist entry
 			capsArray.AddString(arkitStr);
 		}
+
+		const string shareString = "UIFileSharingEnabled";
+		rootDict.SetBoolean(shareString, true);
+
 		File.WriteAllText(plistPath, plist.WriteToString());
 
 		foreach(ARReferenceImagesSet ar in imageSets)
 		{
 			AddReferenceImagesSetToAssetCatalog(ar, pathToBuiltProject, proj);
+		}
+
+		foreach(ARReferenceObjectsSetAsset objSet in objectSets)
+		{
+			AddReferenceObjectsSetAssetToStreamingAssets(objSet, pathToBuiltProject);
 		}
 
 		//TODO: remove this when XCode actool is able to handles ARResources despite deployment target
@@ -231,255 +378,3 @@ public class UnityARBuildPostprocessor
 #endif // #if UNITY_IOS
 	}
 }
-
-
-/*
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using UnityEngine.UI;
-
-public class MainManager : MonoBehaviour
-{
-
-    public List<Vector3> Points = new List<Vector3>();
-    public Transform RootPoint;
-
-    [Header("Messages")]
-    public GameObject[] Messages;
-
-    [Header("Admin Panel")]
-    public bool CanCreatePath = false;
-    public bool Debugging;
-    public InputField PathName;
-
-    [Header("Path")]
-    public GameObject PointPrefab;
-    public GameObject Buttons;
-
-    [Header("UIs")]
-    public GameObject[] Layers;
-    public RectTransform Content;
-
-    public Data CurrentSession;
-    // Use this for initialization
-    void Start()
-    {
-        System.Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes");
-        //LoadPaths();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (CanCreatePath)
-            StartCreatePath();
-        if (Debugging)
-            Camera.main.transform.position += new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-    }
-
-    public void StartCreate()
-    {
-        CanCreatePath = true;
-    }
-
-    public void StartCreatePath()
-    {
-        if (!RootIsFound())
-            SetActiveMessage(0);
-        else
-        {
-            if (Points.Count == 0)
-                SetPoint();
-            SetActiveMessage(1);
-            CreatingPath();
-        }
-    }
-
-    public void SetPoint()
-    {
-        GameObject Point = Instantiate<GameObject>(PointPrefab, RootPoint);
-        Point.transform.position = Camera.main.transform.position - Vector3.up;
-        Points.Add(Point.transform.position);
-        if (Points.Count > 1)
-        {
-            Vector3 lastPoint = Points[Points.Count - 2];
-
-            Point.transform.LookAt(lastPoint);
-            Point.transform.GetChild(0).localScale = new Vector3(1, 1, Vector3.Distance(Point.transform.position, lastPoint) / 2);
-        }
-        else
-        {
-            Point.transform.GetChild(0).localScale = new Vector3(1, 1, 0);
-        }
-    }
-
-    public bool RootIsFound()
-    {
-        GameObject tmp = GameObject.FindGameObjectWithTag("SafeNet");
-        if (tmp)
-        {
-            RootPoint = tmp.transform;
-            return true;
-        }
-        else
-            return false;
-    }
-
-    public void SetActiveMessage(int id)
-    {
-        if (id == -1)
-            foreach (GameObject go in Messages)
-                go.SetActive(false);
-        else
-        {
-            if (!Messages[id].activeSelf)
-            {
-                for (int i = 0; i < Messages.Length; i++)
-                {
-                    Messages[i].SetActive(false);
-                }
-                Messages[id].SetActive(true);
-            }
-        }
-    }
-
-    public void CreatingPath()
-    {
-        Vector3 lastPoin = Points[Points.Count - 1];
-        if (Vector3.Distance(lastPoin, Camera.main.transform.position) > 2)
-            SetPoint();
-    }
-
-    public void SavePoints()
-    {
-        CanCreatePath = false;
-        MyPath newPath = new MyPath();
-        newPath.Points = new List<CustomVector>();
-        SphereCollider[] tmp = RootPoint.GetComponentsInChildren<SphereCollider>();
-        foreach (SphereCollider sph in tmp)
-        {
-            CustomVector Point = new CustomVector(sph.transform.localPosition);
-            newPath.Points.Add(Point);
-        }
-
-        newPath.Name = PathName.text;
-
-        if (!CurrentSession.Paths.Contains(newPath))
-            CurrentSession.Paths.Add(newPath);
-
-
-        BinaryFormatter formatter = new BinaryFormatter();
-        FileStream file = File.Create(Application.persistentDataPath + "/paths.save");
-        formatter.Serialize(file, CurrentSession);
-        file.Close();
-        SetActiveMessage(-1);
-
-    }
-
-    public void LoadPaths()
-    {
-        if(File.Exists(Application.persistentDataPath + "/paths.save"))
-        {
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + "/paths.save", FileMode.Open);
-            CurrentSession = (Data)bf.Deserialize(file);
-            file.Close();
-        }
-    }
-
-    /*
-     * 
-     * 
-            if (RootIsFound())
-                CreatePath(0);
-            else
-                StartCoroutine(CloseMessage(Messages[0],2));
-     * 
-    */
-/*
-public void ShowPaths()
-{
-    f
-    }
-
-public void SetActiveLayer(int id)
-{
-    for (int i = 0; i < Layers.Length; i++)
-    {
-        Layers[i].SetActive(false);
-    }
-
-    Layers[id].SetActive(true);
-}
-
-public void Clear()
-{
-    SphereCollider[] oldPoints = RootPoint.GetComponentsInChildren<SphereCollider>();
-    foreach (SphereCollider sph in oldPoints)
-        Destroy(sph.gameObject);
-}
-public void CreatePath(int id)
-{
-    Clear();
-    MyPath currentPath = CurrentSession.Paths[id];
-    Transform lastPoint = null;
-    for (int i = 0; i < currentPath.Points.Count; i++)
-    {
-        GameObject point = Instantiate(PointPrefab, RootPoint);
-        point.transform.parent = RootPoint;
-        point.transform.localPosition = currentPath.Points[i].ToVector3();
-        if (i > 0)
-        {
-            point.transform.LookAt(lastPoint);
-            point.transform.GetChild(0).localScale = new Vector3(1, 1, Vector3.Distance(point.transform.position, lastPoint.position) / 2);
-        }
-        lastPoint = point.transform;
-    }
-}
-
-public IEnumerator CloseMessage(GameObject om, float delay)
-{
-    om.SetActive(true);
-    yield return new WaitForSeconds(delay);
-    om.SetActive(false);
-}
-}
-
-#region Data
-[System.Serializable]
-public class Data
-{
-    public List<MyPath> Paths;
-}
-
-[System.Serializable]
-public class MyPath
-{
-    public string Name;
-    public List<CustomVector> Points;
-}
-
-[System.Serializable]
-public class CustomVector
-{
-    public float x;
-    public float y;
-    public float z;
-
-    public Vector3 ToVector3()
-    {
-        return new Vector3(x, y, z);
-    }
-
-    public CustomVector(Vector3 from)
-    {
-        x = from.x; y = from.y; z = from.z;
-    }
-}
-#endregion
-
-
-*/

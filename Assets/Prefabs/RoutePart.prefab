@@ -66,7 +66,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4265430101192504}
-  - component: {fileID: 114571811757231706}
+  - component: {fileID: 114185731429127706}
   m_Layer: 0
   m_Name: RoutePart
   m_TagString: Untagged
@@ -126,9 +126,9 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1701947518174670}
-  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.05, y: 0.5, z: 0.025}
+  m_LocalScale: {x: 1, y: 1, z: 0.5}
   m_Children:
   - {fileID: 4594693918821490}
   m_Father: {fileID: 4798551263956018}
@@ -140,9 +140,9 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1477354614502688}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: -0, z: 1}
+  m_LocalScale: {x: 0.06, y: 1, z: 0.03}
   m_Children: []
   m_Father: {fileID: 4372225833484142}
   m_RootOrder: 0
@@ -176,7 +176,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 0a400b3c3a41d4cb889732cb590abd75, type: 2}
+  - {fileID: 2100000, guid: 890e08df536824894bc77b0be993190b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -211,7 +211,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 4dc7e745f64244e2e84e8f7f0bdf2e68, type: 2}
+  - {fileID: 2100000, guid: b00c5f22bc3e84329bbf294917df4a56, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -245,7 +245,7 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1477354614502688}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &114571811757231706
+--- !u!114 &114185731429127706
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -253,10 +253,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1895722561083280}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b004af130c3964d99a655645ea0e93a2, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a1613c7b5e734e588b6787d19044717, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Leg: {fileID: 4798551263956018}
+  Shoulder: {fileID: 4798551263956018}
 --- !u!135 &135302116736075508
 SphereCollider:
   m_ObjectHideFlags: 1
