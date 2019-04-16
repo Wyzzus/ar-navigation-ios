@@ -187,14 +187,14 @@ public class NavigationManager : MonoBehaviour
         ButtonManagement();
         //TrackedImage = GameObject.FindGameObjectWithTag("ImageAnchor");
 
-        if (TrackedImage.GetComponent<MeshRenderer>().enabled)
+        if (TrackedImage.GetComponent<MeshRenderer>().enabled || AnchorFound)
         {
             Error.text = "";
             AnchorFound = true;
         }
         else if (!Recording)
         {
-            Error.text = "Найтите метку";
+            Error.text = "Найдите метку";
             AnchorFound = false;
             AnchorPlaced = false;
         }
@@ -204,7 +204,7 @@ public class NavigationManager : MonoBehaviour
             if(!AnchorPlaced)
             {
                 Anchor.transform.position = TrackedImage.transform.position;
-                AnchorPlaced = true;
+                //AnchorPlaced = true;
             }
             CanRecord = true;
         }
