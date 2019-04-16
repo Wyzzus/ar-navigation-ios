@@ -17,6 +17,10 @@ public class NavigationManager : MonoBehaviour
 
     #endregion
 
+    public int BuildOption = 0;
+
+    public RectTransform ServicePanelContent;
+    public GameObject PanelPartPrefab;
     public NavigationFiled LoadedField;
     public List<Transform> WorkField;
     public List<TargetScript> WorkTargets;
@@ -53,6 +57,7 @@ public class NavigationManager : MonoBehaviour
     public RectTransform content;
     public GameObject RoutesDialog;
     public GameObject RouteButtonPrefab;
+    public GameObject BuilderPrefab;
 
     public GameObject GetFieldPart()
     {
@@ -66,9 +71,38 @@ public class NavigationManager : MonoBehaviour
 	public void Start()
 	{
         Camera.main.cullingMask = NormalMask;
-        //LoadField();
+        LoadField();
         //GetPath(new Vector3(100, 10, 0));
 	}
+
+
+
+
+    public void ShowService()
+    {
+        foreach (RectTransform child in ServicePanelContent)
+        {
+            Destroy(child.gameObject);
+        }
+        for (int i = 0; i < WorkTargets.Count; i++)
+        {
+            GameObject clone = Instantiate<GameObject>(PanelPartPrefab, ServicePanelContent);
+            clone.GetComponent<ServicePanelPart>().targetScript = WorkTargets[i];
+            clone.GetComponent<ServicePanelPart>().Load();
+        }
+        ServicePanelContent.sizeDelta = new Vector2(content.sizeDelta.x, WorkTargets.Count * 100);
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     public void TestSave()
     {
@@ -82,12 +116,35 @@ public class NavigationManager : MonoBehaviour
         SaveLoadManager.instance.Save();
     }
 
+    public void DeleteField()
+    {
+        SaveLoadManager.instance.DeleteField();
+        WorkField.Clear();
+        WorkTargets.Clear();
+
+        foreach (Transform child in Anchor.PointsRoot)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (Transform child in Anchor.TargetsRoot)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
     public void LoadField()
     {
         SaveLoadManager.instance.Load();
         WorkField.Clear();
+        WorkTargets.Clear();
 
         foreach (Transform child in Anchor.PointsRoot)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (Transform child in Anchor.TargetsRoot)
         {
             Destroy(child.gameObject);
         }
@@ -119,6 +176,7 @@ public class NavigationManager : MonoBehaviour
                 ts.SetupTarget();
                 WorkTargets.Add(ts);
             }
+            ShowTargets();
         }
     }
 
@@ -168,7 +226,10 @@ public class NavigationManager : MonoBehaviour
         if(Success)
         {
             Debug.Log(CurrentPath.corners);
-            CreatePath();
+            if (BuildOption == 0)
+                CreatePath();
+            else
+                BuildPath(target.position);
         }
         else
         {
@@ -182,6 +243,18 @@ public class NavigationManager : MonoBehaviour
         if (Path)
             Destroy(Path);
     }
+
+
+    public void BuildPath(Vector3 pos)
+    {
+        if (Path)
+            Destroy(Path);
+
+        Path = Instantiate<GameObject>(EmptyObject);
+        GameObject clone = Instantiate<GameObject>(BuilderPrefab, Agent.position, Quaternion.identity);
+        clone.GetComponent<Builder>().destination = pos; 
+    }
+
 
     public void CreatePath()
     {
@@ -230,6 +303,7 @@ public class NavigationManager : MonoBehaviour
             target.Name = TargetName.text;
             TargetName.text = "";
             target.position = clone.transform.localPosition;
+            target.SetupTarget();
             WorkTargets.Add(target);
             TargetDialog.SetActive(false);
             ShowTargets();
@@ -277,6 +351,8 @@ public class NavigationManager : MonoBehaviour
             GameObject clone = Instantiate<GameObject>(RouteButtonPrefab, content);
             clone.GetComponent<RouteUI>().target = WorkTargets[i];
         }
+        content.sizeDelta = new Vector2(content.sizeDelta.x, WorkTargets.Count * 30);
+                                   
     }
 
     public void SetupField()

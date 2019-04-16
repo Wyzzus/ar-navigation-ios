@@ -41,6 +41,18 @@ public class SaveLoadManager : MonoBehaviour {
         }
     }
 
+    public void DeleteField()
+    {
+        if (Directory.Exists(Folder))
+        {
+            if(File.Exists(Folder + "/data.hdt"))
+            {
+                File.Delete(Folder + "/data.hdt");
+            }
+        }
+
+    }
+
     public void AddField(string Name, List<Transform> WorkField, List<TargetScript> WorkTargets)
     {
         if(CurrentData == null)

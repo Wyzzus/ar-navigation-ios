@@ -37,14 +37,24 @@ public class TargetScript : MonoBehaviour
 
     public void SetupTarget()
     {
-        LoadImage();
+        if(ImageUrl.Length > 0)
+        {
+            LoadImage();
+        }
         NameDisplay.text = Name;
         DescriptionDisplay.text = Description;
     }
 
 	public void Update()
 	{
-		
+        if (Vector3.Distance(Camera.main.transform.position, transform.position) < 10f)
+        {
+            ImageDisplay.transform.localScale = Vector3.one;
+        }
+        else
+            ImageDisplay.transform.localScale = Vector3.zero;
+
+        transform.rotation = Camera.main.transform.rotation;
 	}
 
     public void LoadImage()
