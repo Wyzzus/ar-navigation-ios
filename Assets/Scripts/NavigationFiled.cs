@@ -38,9 +38,20 @@ public class FieldPart
     public SerVector3 rotation;
     public float shoulderScale;
 
-    public void SetPart()
+    public FieldPart(Transform tr)
     {
+        this.position = new SerVector3(tr.position);
+        this.rotation = new SerVector3(tr.eulerAngles);
+        this.shoulderScale = tr.localScale.z;
+    }
 
+    public Quaternion GetRotation()
+    {
+        Quaternion rot = new Quaternion();
+
+        rot = Quaternion.Euler(rotation.GetRegularVector3());
+
+        return rot;
     }
 
 }
@@ -49,27 +60,37 @@ public class FieldPart
 public class NavigationTarget
 {
     public string Name;
+    public string ImageUrl;
+    public string Description;
     public SerVector3 position;
 }
 
 [System.Serializable]
-public class NavigationFiled : MonoBehaviour
+public class NavigationFiled
 {
+    public string Name;
     public List<FieldPart> Parts;
+    public List<NavigationTarget> Targets;
 
     public void InitializeField()
     {
         Parts = new List<FieldPart>();
     }
 
-    public void SetupField()
+    /*public void SetupField()
     {
         for (int i = 0; i < Parts.Count; i++)
         {
             GameObject part = Instantiate<GameObject>(NavigationManager.instance.GetFieldPart(), NavigationManager.instance.GetAnchor());
             part.transform.localPosition = Parts[i].position.GetRegularVector3();
             part.transform.localRotation = Quaternion.Euler(Parts[i].rotation.GetRegularVector3());
-            //part.transform.localScale = Parts[i].scale.GetRegularVector3();
+            part.transform.localScale = Vector3.forward * Parts[i].shoulderScale;
         }
-    }
+    }*/
+}
+
+[System.Serializable]
+public class NavigationData
+{
+    public List<NavigationFiled> NavFields; 
 }

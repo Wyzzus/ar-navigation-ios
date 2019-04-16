@@ -17,7 +17,7 @@ public class NavigationManager : MonoBehaviour
 
     #endregion
 
-    public NavigationFiled LoadedField;
+    //public NavigationFiled LoadedField;
     public List<Transform> WorkField;
     public List<TargetScript> WorkTargets;
 
@@ -68,6 +68,12 @@ public class NavigationManager : MonoBehaviour
         Camera.main.cullingMask = NormalMask;
         //GetPath(new Vector3(100, 10, 0));
 	}
+
+    public void TestSave()
+    {
+        //SaveLoadManager.instance.AddField("Test", WorkField, WorkTargets);
+        SaveLoadManager.instance.Load();
+    }
 
 	public void Update()
     {
@@ -179,6 +185,7 @@ public class NavigationManager : MonoBehaviour
             target.position = clone.transform.localPosition;
             WorkTargets.Add(target);
             TargetDialog.SetActive(false);
+            ShowTargets();
         }
     }
 
@@ -214,7 +221,6 @@ public class NavigationManager : MonoBehaviour
 
     public void ShowTargets()
     {
-        ShowHideObject(RoutesDialog);
         foreach (RectTransform child in content)
         {
             Destroy(child.gameObject);
@@ -228,7 +234,7 @@ public class NavigationManager : MonoBehaviour
 
     public void SetupField()
     {
-        LoadedField.SetupField();
+        //LoadedField.SetupField();
     }
 
     public void ChangeMask()
