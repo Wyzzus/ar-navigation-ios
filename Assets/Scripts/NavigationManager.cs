@@ -26,6 +26,7 @@ public class NavigationManager : MonoBehaviour
     public List<TargetScript> WorkTargets;
 
     public NavMeshPath CurrentPath;
+    public TargetScript CurrentTarget;
     public LayerMask NormalMask;
     public LayerMask DebugMask;
 
@@ -61,6 +62,11 @@ public class NavigationManager : MonoBehaviour
     public GameObject RouteButtonPrefab;
     public GameObject BuilderPrefab;
     public Button CrossButton;
+
+    public GameObject LeftPointer;
+    public GameObject RightPointer;
+
+    public float AngleBetween;
 
     public float Timer = 0;
 
@@ -233,10 +239,42 @@ public class NavigationManager : MonoBehaviour
                 Record();
         }
 
+        if(Path && CurrentTarget)
+        {
+            Vector3 targetDir = CurrentTarget.transform.position - Agent.transform.position;
+            AngleBetween = Vector3.SignedAngle(targetDir, Agent.transform.forward, Vector3.up);
+
+            if(Mathf.Abs(AngleBetween) > 20)
+            {
+                if(AngleBetween > 0)
+                {
+                    LeftPointer.SetActive(true);
+                    RightPointer.SetActive(false);
+                }
+                else
+                {
+                    LeftPointer.SetActive(false);
+                    RightPointer.SetActive(true);
+                }
+            }
+            else
+            {
+                LeftPointer.SetActive(false);
+                RightPointer.SetActive(false);
+            }
+            //Debug.Log(AngleBetween);
+        }
+        else
+        {
+            LeftPointer.SetActive(false);
+            RightPointer.SetActive(false);
+        }
+
     }
 
     public void GetPath(TargetScript target)
     {
+        CurrentTarget = target;
         CurrentPath = new NavMeshPath();
         NavMeshHit hitAgent;
         NavMesh.SamplePosition(Agent.position, out hitAgent, 1000, -1);
@@ -262,6 +300,7 @@ public class NavigationManager : MonoBehaviour
     {
         if (Path)
             Destroy(Path);
+        CurrentTarget = null;
     }
 
 
