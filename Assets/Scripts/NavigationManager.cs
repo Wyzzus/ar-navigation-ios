@@ -41,6 +41,7 @@ public class NavigationManager : MonoBehaviour
     public GameObject Path;
     public GameObject RoutePartPrefab;
     public GameObject CrossPrefab;
+    public MeshRenderer AnchorModel;
 
     public bool CanRecord;
 
@@ -60,6 +61,8 @@ public class NavigationManager : MonoBehaviour
     public GameObject RouteButtonPrefab;
     public GameObject BuilderPrefab;
     public Button CrossButton;
+
+    public float Timer = 0;
 
     public GameObject GetFieldPart()
     {
@@ -185,29 +188,44 @@ public class NavigationManager : MonoBehaviour
 	public void Update()
     {
         ButtonManagement();
-        //TrackedImage = GameObject.FindGameObjectWithTag("ImageAnchor");
+        TrackedImage = GameObject.FindGameObjectWithTag("ImageAnchor");
 
-        if (TrackedImage.GetComponent<MeshRenderer>().enabled || AnchorFound)
+        if (TrackedImage.GetComponent<MeshRenderer>().enabled && !AnchorFound)
+        {
+            //Debug.Log("Found!");
+            Timer += Time.deltaTime;
+            if(Timer < 1f)
+            {
+                Anchor.transform.position = TrackedImage.transform.position;
+                Anchor.PointsRoot.rotation = TrackedImage.transform.rotation;
+                Anchor.TargetsRoot.rotation = TrackedImage.transform.rotation;
+
+            }
+            else
+            {
+                AnchorPlaced = true;
+                AnchorFound = true;
+                Anchor.GenerateNavMesh();
+                Timer = 0;
+            }
+        }
+
+        if (!TrackedImage.GetComponent<MeshRenderer>().enabled)
+            AnchorFound = false;
+            
+
+        if (AnchorFound)
         {
             Error.text = "";
-            AnchorFound = true;
         }
-        else if (!Recording)
+        else if (!AnchorPlaced)
         {
             Error.text = "Найдите метку";
             AnchorFound = false;
-            AnchorPlaced = false;
         }
 
-        if(AnchorFound)
-        {
-            if(!AnchorPlaced)
-            {
-                Anchor.transform.position = TrackedImage.transform.position;
-                //AnchorPlaced = true;
-            }
+        if (AnchorPlaced)
             CanRecord = true;
-        }
 
         if (CanRecord)
         {
@@ -384,7 +402,7 @@ public class NavigationManager : MonoBehaviour
             float dist = Vector3.Distance(NearestPart.position, Agent.position);
             if (dist >= DistanceOfSetup)
             {
-                SetPartOn(Agent.position, NearestPart.position);
+                SetPartOn(Agent.position, NearestPart.localPosition);
             }
         }
         else

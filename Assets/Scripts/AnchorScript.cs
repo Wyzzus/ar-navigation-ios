@@ -23,6 +23,6 @@ public class AnchorScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
     {
-        Model.localRotation = Quaternion.Slerp(Model.localRotation, Camera.main.transform.rotation, .2f);
+        Model.rotation = Quaternion.Slerp(Model.rotation, Camera.main.transform.rotation, .2f);
 	}
 }

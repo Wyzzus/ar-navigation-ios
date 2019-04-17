@@ -40,8 +40,8 @@ public class FieldPart
 
     public FieldPart(Transform tr)
     {
-        this.position = new SerVector3(tr.position);
-        this.rotation = new SerVector3(tr.eulerAngles);
+        this.position = new SerVector3(tr.localPosition);
+        this.rotation = new SerVector3(tr.localEulerAngles);
         this.shoulderScale = tr.localScale.z;
     }
 
