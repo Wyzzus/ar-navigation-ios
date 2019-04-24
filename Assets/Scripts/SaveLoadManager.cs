@@ -73,7 +73,7 @@ public class SaveLoadManager : MonoBehaviour {
 
         for (int i = 0; i < WorkField.Count; i++)
         {
-            field.Parts.Add(new FieldPart(WorkField[i]));
+            field.Parts.Add(new FieldPart(WorkField[i], WorkField[i].GetComponent<PartScript>().Shoulder.localScale.z));
         }
 
 

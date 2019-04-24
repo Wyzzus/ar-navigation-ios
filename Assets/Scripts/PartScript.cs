@@ -8,11 +8,11 @@ public class PartScript : MonoBehaviour
 
 	public void SetupPart(float size)
     {
-        Shoulder.localScale = new Vector3(Shoulder.localScale.x, Shoulder.localScale.y, size);
-        foreach(MeshRenderer mt in GetComponentsInChildren<MeshRenderer>())
+        Shoulder.localScale = new Vector3(1, 1, size / NavigationManager.instance.ScaleKoeff );
+        /*foreach(MeshRenderer mt in GetComponentsInChildren<MeshRenderer>())
         {
             mt.enabled = true;
-        }
+        }*/
     }
 
 }

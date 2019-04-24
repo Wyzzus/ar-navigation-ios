@@ -70,6 +70,8 @@ public class NavigationManager : MonoBehaviour
 
     public float Timer = 0;
 
+    public float ScaleKoeff = 1;
+
     public GameObject GetFieldPart()
     {
         return FieldPartPrefab;
@@ -82,8 +84,10 @@ public class NavigationManager : MonoBehaviour
 	public void Start()
 	{
         Camera.main.cullingMask = NormalMask;
-        LoadField();
         //GetPath(new Vector3(100, 10, 0));
+        ScaleKoeff = 1f / TrackedImage.transform.lossyScale.y;
+
+        DistanceOfSetup = ScaleKoeff /2f;
 	}
 
 
@@ -133,6 +137,11 @@ public class NavigationManager : MonoBehaviour
         WorkField.Clear();
         WorkTargets.Clear();
 
+        DeletePysicaly();
+    }
+
+    public void DeletePysicaly()
+    {
         foreach (Transform child in Anchor.PointsRoot)
         {
             Destroy(child.gameObject);
@@ -160,7 +169,7 @@ public class NavigationManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        if(SaveLoadManager.instance.CurrentData != null)
+        if(SaveLoadManager.instance.CurrentData != null && SaveLoadManager.instance.CurrentData.NavFields.Count > 0)
         {
             LoadedField = SaveLoadManager.instance.CurrentData.NavFields[0];
             Debug.Log(LoadedField.Name);
@@ -169,7 +178,9 @@ public class NavigationManager : MonoBehaviour
                 GameObject part = Instantiate<GameObject>(NavigationManager.instance.GetFieldPart(), Anchor.PointsRoot);
                 part.transform.localPosition = LoadedField.Parts[i].position.GetRegularVector3();
                 part.transform.localRotation = Quaternion.Euler(LoadedField.Parts[i].rotation.GetRegularVector3());
-                part.transform.localScale = Vector3.one * LoadedField.Parts[i].shoulderScale;
+                part.transform.localScale = Vector3.one;
+                //part.
+                part.GetComponent<PartScript>().SetupPart(LoadedField.Parts[i].shoulderScale * ScaleKoeff);
                 WorkField.Add(part.transform);
             }
 
@@ -202,9 +213,11 @@ public class NavigationManager : MonoBehaviour
             Timer += Time.deltaTime;
             if(Timer < 1f)
             {
-                Anchor.transform.position = TrackedImage.transform.position;
+                DeletePysicaly();
+                Anchor.transform.position = TrackedImage.transform.position - Vector3.up;
                 Anchor.PointsRoot.rotation = TrackedImage.transform.rotation;
                 Anchor.TargetsRoot.rotation = TrackedImage.transform.rotation;
+                LoadField();
 
             }
             else
@@ -270,6 +283,8 @@ public class NavigationManager : MonoBehaviour
             RightPointer.SetActive(false);
         }
 
+        Anchor.transform.localScale = Vector3.one * ScaleKoeff;
+
     }
 
     public void GetPath(TargetScript target)
@@ -279,7 +294,7 @@ public class NavigationManager : MonoBehaviour
         NavMeshHit hitAgent;
         NavMesh.SamplePosition(Agent.position, out hitAgent, 1000, -1);
         NavMeshHit hitPoint;
-        NavMesh.SamplePosition(target.position, out hitPoint, 1000, -1);
+        NavMesh.SamplePosition(target.transform.position, out hitPoint, 1000, -1);
         bool Success = NavMesh.CalculatePath(hitAgent.position, hitPoint.position, NavMesh.AllAreas, CurrentPath);
         if(Success)
         {
@@ -287,7 +302,7 @@ public class NavigationManager : MonoBehaviour
             if (BuildOption == 0)
                 CreatePath();
             else
-                BuildPath(target.position);
+                BuildPath(hitPoint.position);
         }
         else
         {
@@ -370,6 +385,7 @@ public class NavigationManager : MonoBehaviour
             WorkTargets.Add(target);
             TargetDialog.SetActive(false);
             ShowTargets();
+            SetPartOn(Agent.position, GetNearestPart().position);
         }
     }
 
@@ -441,12 +457,12 @@ public class NavigationManager : MonoBehaviour
             float dist = Vector3.Distance(NearestPart.position, Agent.position);
             if (dist >= DistanceOfSetup)
             {
-                SetPartOn(Agent.position, NearestPart.localPosition);
+                SetPartOn(Agent.position, NearestPart.position);
             }
         }
         else
         {
-            SetPartOn(Agent.position, Agent.position - Vector3.forward/2 - Vector3.up/2);
+            SetPartOn(Agent.position, Agent.position);
         }
     }
 
@@ -454,7 +470,7 @@ public class NavigationManager : MonoBehaviour
     {
         int Nearest = 0;
         float minDist = float.MaxValue;
-        for (int i = 1; i < WorkField.Count; i++)
+        for (int i = 0; i < WorkField.Count; i++)
         {
             float dist = Vector3.Distance(WorkField[i].position, Agent.position);
             if (dist < minDist)
@@ -471,11 +487,12 @@ public class NavigationManager : MonoBehaviour
     {
         GameObject clone = Instantiate<GameObject>(FieldPartPrefab, position, Quaternion.identity);
         clone.transform.position = new Vector3(position.x, -0.5f, position.z);
-        clone.transform.LookAt(to);
-        //clone.transform.localScale = new Vector3(1, 1, Vector3.Distance(position, to));
+        if(position != to)
+            clone.transform.LookAt(to);
         clone.GetComponent<PartScript>().SetupPart(Vector3.Distance(position, to));
         WorkField.Add(clone.transform);
         clone.transform.parent = Anchor.PointsRoot;
+        clone.transform.localScale = Vector3.one;
     }
 
     public void SetCross(Vector3 position)
@@ -484,5 +501,6 @@ public class NavigationManager : MonoBehaviour
         clone.transform.position = new Vector3(position.x, -0.5f, position.z);
         WorkField.Add(clone.transform);
         clone.transform.parent = Anchor.PointsRoot;
+        clone.transform.localScale = new Vector3(1, 0, 1);
     }
 }

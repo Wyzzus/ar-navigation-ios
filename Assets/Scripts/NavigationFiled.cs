@@ -38,11 +38,11 @@ public class FieldPart
     public SerVector3 rotation;
     public float shoulderScale;
 
-    public FieldPart(Transform tr)
+    public FieldPart(Transform tr, float size)
     {
         this.position = new SerVector3(tr.localPosition);
         this.rotation = new SerVector3(tr.localEulerAngles);
-        this.shoulderScale = tr.localScale.z;
+        this.shoulderScale = size;
     }
 
     public Quaternion GetRotation()
