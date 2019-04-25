@@ -18,6 +18,9 @@ public class NavigationManager : MonoBehaviour
     #endregion
 
     public int BuildOption = 0;
+    public bool Stabilization = true;
+
+    public Text StabText;
 
     public RectTransform ServicePanelContent;
     public GameObject PanelPartPrefab;
@@ -375,12 +378,15 @@ public class NavigationManager : MonoBehaviour
         if(TargetName.text.Length != 0)
         {
             GameObject clone = Instantiate<GameObject>(TargetPrefab, Agent.position, Quaternion.identity);
-            clone.transform.position = new Vector3(Agent.position.x, -0.5f, Agent.position.z);
-            clone.transform.parent = Anchor.TargetsRoot;
+            float yPos = -0.5f;
+            if (!Stabilization)
+                yPos = RoundToStab(Agent.position.y);
+            clone.transform.position = new Vector3(Agent.position.x, yPos, Agent.position.z);
             TargetScript target = clone.GetComponent<TargetScript>();
             target.Name = TargetName.text;
             TargetName.text = "";
-            target.position = clone.transform.localPosition;
+            target.position = clone.transform.position;
+            clone.transform.parent = Anchor.TargetsRoot;
             target.SetupTarget();
             WorkTargets.Add(target);
             TargetDialog.SetActive(false);
@@ -454,7 +460,11 @@ public class NavigationManager : MonoBehaviour
         if (WorkField.Count != 0)
         {
             Transform NearestPart = GetNearestPart();
-            float dist = Vector3.Distance(NearestPart.position, Agent.position);
+            float dist = 1;
+            if (Stabilization)
+                dist = GetDist2D(NearestPart.position, Agent.position);
+            else
+                dist = Vector3.Distance(NearestPart.position, Agent.position);
             if (dist >= DistanceOfSetup)
             {
                 SetPartOn(Agent.position, NearestPart.position);
@@ -466,13 +476,32 @@ public class NavigationManager : MonoBehaviour
         }
     }
 
+    public float GetDist2D(Vector3 from, Vector3 to)
+    {
+        Vector3 from2D = new Vector3(from.x, 0, from.z);
+        Vector3 to2D = new Vector3(to.x, 0, to.z);
+
+        return Vector3.Distance(from2D, to2D);
+    }
+
     public Transform GetNearestPart()
     {
         int Nearest = 0;
         float minDist = float.MaxValue;
+        //Vector3 agentPos2D = new Vector3(Agent.position.x, 0, Agent.position.z);
         for (int i = 0; i < WorkField.Count; i++)
         {
-            float dist = Vector3.Distance(WorkField[i].position, Agent.position);
+            float dist = 0;
+            if (Stabilization)
+            {
+                //Vector3 fieldPos2D = new Vector3(WorkField[i].position.x, 0, WorkField[i].position.z);
+                dist = GetDist2D(WorkField[i].position, Agent.position);
+                //Debug.Log(dist);
+            }
+            else
+            {
+                dist = Vector3.Distance(WorkField[i].position, Agent.position);
+            }
             if (dist < minDist)
             {
                 minDist = dist;
@@ -483,16 +512,40 @@ public class NavigationManager : MonoBehaviour
         return WorkField[Nearest];
     }
 
+    public void TurnStabilization()
+    {
+        Stabilization = !Stabilization;
+        if (Stabilization)
+            StabText.text = "Стабилизация включена";
+        else
+            StabText.text = "Стабилизация выключена";
+    }
+
     public void SetPartOn(Vector3 position, Vector3 to)
     {
         GameObject clone = Instantiate<GameObject>(FieldPartPrefab, position, Quaternion.identity);
-        clone.transform.position = new Vector3(position.x, -0.5f, position.z);
+
+        float yPos = -1f;
+
+        if (!Stabilization)
+            yPos = RoundToStab(Agent.position.y);
+
+        clone.transform.position = new Vector3(position.x, yPos, position.z);
         if(position != to)
             clone.transform.LookAt(to);
-        clone.GetComponent<PartScript>().SetupPart(Vector3.Distance(position, to));
+        clone.GetComponent<PartScript>().SetupPart(Vector3.Distance(clone.transform.position, to));
         WorkField.Add(clone.transform);
         clone.transform.parent = Anchor.PointsRoot;
         clone.transform.localScale = Vector3.one;
+    }
+
+    public float RoundToStab(float value)
+    {
+        float res = 0;
+
+        res = Mathf.Round(value * 10f) / 10f;
+
+        return res - 1f;
     }
 
     public void SetCross(Vector3 position)

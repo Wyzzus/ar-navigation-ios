@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4021958447927790}
   - component: {fileID: 33214006730124312}
   - component: {fileID: 23690459751807246}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: 20312_Anchor_v2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36,7 +36,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4899980977046722}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: 20312_Anchor_v2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,7 +66,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4920708103990124}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Targets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83,7 +83,7 @@ GameObject:
   - component: {fileID: 4221893239095020}
   - component: {fileID: 114052146412922612}
   - component: {fileID: 114570437337917918}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Anchor
   m_TagString: Anchor
   m_Icon: {fileID: 0}
@@ -228,12 +228,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AgentTypeID: 0
-  m_CollectObjects: 1
-  m_Size: {x: 1000, y: 1000, z: 1000}
+  m_CollectObjects: 0
+  m_Size: {x: 2000, y: 2000, z: 2000}
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 3127
   m_UseGeometry: 0
   m_DefaultArea: 0
   m_IgnoreNavMeshAgent: 1
@@ -241,6 +241,6 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 1
-  m_VoxelSize: 0.022
+  m_VoxelSize: 0.05
   m_BuildHeightMesh: 0
   m_NavMeshData: {fileID: 0}
