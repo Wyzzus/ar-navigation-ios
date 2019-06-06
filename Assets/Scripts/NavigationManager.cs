@@ -175,14 +175,23 @@ public class NavigationManager : MonoBehaviour
         if(SaveLoadManager.instance.CurrentData != null && SaveLoadManager.instance.CurrentData.NavFields.Count > 0)
         {
             LoadedField = SaveLoadManager.instance.CurrentData.NavFields[0];
-            Debug.Log(LoadedField.Name);
             for (int i = 0; i < LoadedField.Parts.Count; i++)
             {
-                GameObject part = Instantiate<GameObject>(NavigationManager.instance.GetFieldPart(), Anchor.PointsRoot);
+                GameObject part;
+                Vector3 scaleVector = Vector3.one;
+                if (LoadedField.Parts[i].shoulderScale < 0)
+                {
+                    part = Instantiate<GameObject>(CrossPrefab, Anchor.PointsRoot);
+                    scaleVector -= Vector3.up;
+                }
+                else
+                {
+                    part = Instantiate<GameObject>(NavigationManager.instance.GetFieldPart(), Anchor.PointsRoot);
+                }
+                
                 part.transform.localPosition = LoadedField.Parts[i].position.GetRegularVector3();
                 part.transform.localRotation = Quaternion.Euler(LoadedField.Parts[i].rotation.GetRegularVector3());
-                part.transform.localScale = Vector3.one;
-                //part.
+                part.transform.localScale = scaleVector;
                 part.GetComponent<PartScript>().SetupPart(LoadedField.Parts[i].shoulderScale * ScaleKoeff);
                 WorkField.Add(part.transform);
             }
@@ -192,7 +201,7 @@ public class NavigationManager : MonoBehaviour
             for (int i = 0; i < LoadedField.Targets.Count; i++)
             {
                 GameObject part = Instantiate<GameObject>(TargetPrefab, Anchor.TargetsRoot);
-                part.transform.localPosition = LoadedField.Targets[i].position.GetRegularVector3();
+                part.transform.localPosition = LoadedField.Targets[i].position.GetRegularVector3() / ScaleKoeff;
                 TargetScript ts = part.GetComponent<TargetScript>();
                 ts.position = ts.transform.position;
                 ts.Name = LoadedField.Targets[i].Name;
@@ -381,7 +390,7 @@ public class NavigationManager : MonoBehaviour
             float yPos = -0.5f;
             if (!Stabilization)
                 yPos = RoundToStab(Agent.position.y);
-            clone.transform.position = new Vector3(Agent.position.x, yPos, Agent.position.z);
+            clone.transform.position = new Vector3(Agent.position.x, yPos + 1f, Agent.position.z);
             TargetScript target = clone.GetComponent<TargetScript>();
             target.Name = TargetName.text;
             TargetName.text = "";
@@ -551,7 +560,14 @@ public class NavigationManager : MonoBehaviour
     public void SetCross(Vector3 position)
     {
         GameObject clone = Instantiate<GameObject>(CrossPrefab, position, Quaternion.identity);
-        clone.transform.position = new Vector3(position.x, -0.5f, position.z);
+
+        float yPos = -1f;
+
+        if (!Stabilization)
+            yPos = RoundToStab(Agent.position.y);
+
+
+        clone.transform.position = new Vector3(position.x, yPos, position.z);
         WorkField.Add(clone.transform);
         clone.transform.parent = Anchor.PointsRoot;
         clone.transform.localScale = new Vector3(1, 0, 1);

@@ -15,6 +15,17 @@ public class TargetScript : MonoBehaviour
     public Text DescriptionDisplay;
     public Image ImageDisplay;
 
+    public GameObject[] Models;
+    public GameObject Left;
+    public GameObject Right;
+
+    public GameObject[] Banners;
+
+    public float DistanceToHide = 4f;
+
+    public Transform Body;
+    public Transform Canv;
+
     public NavigationTarget GetNavi()
     {
         NavigationTarget navi = new NavigationTarget();
@@ -43,18 +54,25 @@ public class TargetScript : MonoBehaviour
         }
         NameDisplay.text = Name;
         DescriptionDisplay.text = Description;
+
     }
 
 	public void Update()
 	{
-        if (Vector3.Distance(Camera.main.transform.position, transform.position) < 10f)
+        if (Vector3.Distance(Camera.main.transform.position, transform.position) < DistanceToHide)
         {
-            ImageDisplay.transform.localScale = Vector3.one;
+            Body.transform.localScale = Vector3.one;
         }
         else
-            ImageDisplay.transform.localScale = Vector3.zero;
+            Body.transform.localScale = Vector3.zero;
 
-        transform.rotation = Camera.main.transform.rotation;
+        if (ImageUrl.Length == 0)
+            ImageDisplay.rectTransform.sizeDelta = Vector2.zero;
+        else
+            ImageDisplay.rectTransform.sizeDelta = Vector2.one;
+
+        Canv.transform.rotation = Camera.main.transform.rotation;
+        SetupModel();
 	}
 
     public void LoadImage()
@@ -80,8 +98,68 @@ public class TargetScript : MonoBehaviour
             ImageDisplay.rectTransform.sizeDelta = new Vector2(1, ratio);
         }
 
+    }
 
+    public void SetupModel()
+    {
+        switch(Name)
+        {
+            case "Винный отдел":
+                ActivateModel(-1);
+                Right.SetActive(false);
+                Left.SetActive(true);
+                break;
+            case "Рыбный отдел":
+                ActivateModel(-1);
+                Right.SetActive(true);
+                Left.SetActive(false);
+                break;
+            case "Фрукты/Овощи":
+                ActivateModel(-1);
+                Right.SetActive(true);
+                Left.SetActive(false);
+                break;
+            case "1":
+                ActivateModel(0);
+                Right.SetActive(false);
+                Left.SetActive(false);
+                DescriptionDisplay.transform.parent.gameObject.SetActive(false);
+                Banners[0].SetActive(true);
+                Banners[1].SetActive(false);
+                break;
+            case "2":
+                ActivateModel(1);
+                Right.SetActive(false);
+                Left.SetActive(false);
+                DescriptionDisplay.transform.parent.gameObject.SetActive(false);
+                Banners[0].SetActive(false);
+                Banners[1].SetActive(true);
+                break;
+            case "3":
+                ActivateModel(2);
+                Right.SetActive(false);
+                Left.SetActive(false);
+                DescriptionDisplay.transform.parent.gameObject.SetActive(false);
+                break;
+            default:
+                ActivateModel(-1);
+                Right.SetActive(false);
+                Left.SetActive(false);
+                Banners[0].SetActive(false);
+                Banners[1].SetActive(false);
+                break;
+        }
+    }
 
+    public void ActivateModel(int n)
+    {
+        for (int i = 0; i < Models.Length; i++)
+        {
+            if (i == n)
+                Models[n].SetActive(true);
+            else
+                Models[i].SetActive(false);
+        }
     }
 
 }

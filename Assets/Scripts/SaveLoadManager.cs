@@ -10,6 +10,7 @@ public class SaveLoadManager : MonoBehaviour {
     public static SaveLoadManager instance;
 
     public NavigationData CurrentData;
+    public RetailData CurrentRetailData;
 
     public string Folder;
 
@@ -98,6 +99,53 @@ public class SaveLoadManager : MonoBehaviour {
                 CurrentData = (NavigationData)formatter.Deserialize(fs);
             }
             catch(System.Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+            finally
+            {
+                fs.Close();
+            }
+        }
+    }
+
+    public void ConvertRetail(List<ShopObject> objects)
+    {
+        for (int i = 0; i < objects.Count; i++)
+        {
+            
+        }
+    }
+
+    public void SaveRetail()
+    {
+        if (CurrentData != null)
+        {
+            if (!Directory.Exists(Folder))
+            {
+                Directory.CreateDirectory(Folder);
+            }
+
+            FileStream fs = new FileStream(Folder + "/dataRetail.hdt", FileMode.Create);
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(fs, CurrentData);
+            fs.Close();
+        }
+    }
+
+    public void LoadRetail()
+    {
+        if (File.Exists(Folder + "/dataRetail.hdt"))
+        {
+            FileStream fs = new FileStream(Folder + "/dataRetail.hdt", FileMode.Open);
+            BinaryFormatter formatter = new BinaryFormatter();
+            CurrentData = null;
+            CurrentData = new NavigationData();
+            try
+            {
+                CurrentData = (NavigationData)formatter.Deserialize(fs);
+            }
+            catch (System.Exception e)
             {
                 Debug.Log(e.Message);
             }

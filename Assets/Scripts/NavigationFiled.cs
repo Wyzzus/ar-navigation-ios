@@ -94,3 +94,31 @@ public class NavigationData
 {
     public List<NavigationFiled> NavFields; 
 }
+
+
+public class RetailObject
+{
+    public SerVector3 position;
+    public string description;
+
+    public Vector3 GetPosition()
+    {
+        return position.GetRegularVector3();
+    }
+
+    public string GetDescription()
+    {
+        return description; 
+    }
+
+    public RetailObject(ShopObject so)
+    {
+        position = new SerVector3(so.transform.position);
+        description = so.description;
+    }
+}
+
+public class RetailData
+{
+    public List<RetailObject> Objects;
+}

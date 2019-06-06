@@ -56,4 +56,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/UnityARKitPlugin/Examples/ARKit1.5/UnityARImageAnchor/UnityARImageAnchor.unity
     guid: befc06ba4fe0046439ef5dac5a33c0e7
+  - enabled: 0
+    path: Assets/Vuforia/RetailScene.unity
+    guid: 3e0e2bca31d0140c7aae83c16515cd2a
   m_configObjects: {}

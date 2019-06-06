@@ -24,6 +24,11 @@ public class AnchorScript : MonoBehaviour {
 	void Update () 
     {
         Model.rotation = Quaternion.Slerp(Model.rotation, Camera.main.transform.rotation, .2f);
-        Model.localPosition = Vector3.up / NavigationManager.instance.ScaleKoeff;
+        float sf = 1;
+        if(NavigationManager.instance != null)
+        {
+            sf = NavigationManager.instance.ScaleKoeff;
+        }
+        Model.localPosition = Vector3.up / sf;
 	}
 }
